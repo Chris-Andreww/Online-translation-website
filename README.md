@@ -1,3 +1,5 @@
-![IMG_5488(20230422-234828)](https://user-images.githubusercontent.com/102415870/233794560-e2b29e53-2d76-490a-b7f7-b6a35b876458.PNG)
-![IMG_5486(20230422-234734)](https://user-images.githubusercontent.com/102415870/233794562-9251a222-9c2c-434e-b307-5947c8d072e9.PNG)
-![IMG_5485(20230422-234627)](https://user-images.githubusercontent.com/102415870/233794565-f29f4865-19f9-4a63-a485-331a59212691.PNG)
+版本1.0.1更新
+·更新内容：支持自动翻译
+![69298B86E6E5B64A0175A64E836632B5](https://user-images.githubusercontent.com/102415870/233822635-76df736e-452c-41b1-b749-3a9315e00b23.png)
+![9606F60BC331000D78CDEBCD9F429060](https://user-images.githubusercontent.com/102415870/233822641-17b328fc-4c00-4dfd-b0dc-2dd97bdfb0c0.png)
+![6B27D2DE196AD3D801936C8F2E26CADE](https://user-images.githubusercontent.com/102415870/233822642-66e80fa3-b6ce-4a3f-9868-cc706a70fd46.png)
