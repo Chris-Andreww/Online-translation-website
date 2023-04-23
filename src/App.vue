@@ -6,6 +6,7 @@
         type="textarea"
         :rows="8"
         v-model="data.textarea"
+        @input="autoTrans"
         placeholder="请输入需要翻译的内容">
     </el-input>
 
@@ -18,7 +19,7 @@
            <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
         </el-button>
-<!--        语言选择下拉菜单-->
+        <!--        语言选择下拉菜单-->
         <el-dropdown-menu>
           <el-dropdown-item command="en">英文</el-dropdown-item>
           <el-dropdown-item command="zh">中文</el-dropdown-item>
@@ -26,16 +27,16 @@
         </el-dropdown-menu>
       </el-dropdown>
 
-<!--      翻译按钮-->
+      <!--      翻译按钮-->
       <el-button
           class="btn1"
           style="margin: 20px 0;"
           type="primary"
           @click="goTranslate"
           :loading="data.loadingStat"
-      >翻译
+      >{{ this.data.loadingStat ? '翻译中' : '翻译' }}
       </el-button>
-<!--      重置按钮-->
+      <!--      重置按钮-->
       <el-button
           class="btn2"
           style="margin: 20px 0;"
@@ -81,6 +82,7 @@
       <el-checkbox-group v-model="data.checkList">
         <el-checkbox label="A">保留翻译结果</el-checkbox>
         <el-checkbox label="B">保存当前配置</el-checkbox>
+        <el-checkbox label="C">是否开启自动翻译</el-checkbox>
       </el-checkbox-group>
     </div>
 
@@ -106,6 +108,17 @@ export default {
     }
   },
   methods: {
+    //自动翻译功能
+    autoTrans() {
+      if (this.data.checkList.some(val => val === 'C')) {//如果发现复选框C被选中才会自动翻译
+        this.data.loadingStat = true
+        //设置防抖方法，让用户停止输入2秒后才自动翻译
+        clearTimeout(this.timerT)
+        this.timerT = setTimeout(() => {
+          this.goTranslate()
+        }, 1500)
+      }
+    },
     changeLanguage(lan) {
       switch (lan) {
         case 'en':
@@ -123,8 +136,8 @@ export default {
     },
     //  百度翻译入口,query为用户输入的内容
     translate(queryContent) {
-      let appid = '这里输入你的APPID'
-      let key = '这里输入你的秘钥'
+      let appid = '20221214001496971'
+      let key = 'OAfmWzH_xc9OoYrEGQfy'
       let salt = (new Date).getTime()
       let query = queryContent
       // 多个query可以用\n连接  如 query='apple\norange\nbanana\npear'
@@ -170,6 +183,7 @@ export default {
           type: 'error',
           duration: 2000
         })
+        this.data.loadingStat = false
         return
       }
       if (this.data.checkList.some(val => {
@@ -192,14 +206,14 @@ export default {
         this.data.textarea = '',
             this.data.result = '',
             this.data.checkList = [],
-            this.data.fontSize=18,
-            this.data.Language='EN',
-            this.data.targetLan='en',
-        this.$message({
-          type: 'success',
-          message: '重置成功!',
-          duration: 1000
-        });
+            this.data.fontSize = 18,
+            this.data.Language = 'EN',
+            this.data.targetLan = 'en',
+            this.$message({
+              type: 'success',
+              message: '重置成功!',
+              duration: 1000
+            });
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -226,10 +240,10 @@ export default {
         })
       })
     },
-    addFontSize(){
+    addFontSize() {
       this.data.fontSize++
     },
-    deFontSize(){
+    deFontSize() {
       this.data.fontSize--
     }
   },
@@ -261,6 +275,7 @@ export default {
       },
       deep: true
     }
+
   },
   created() {
     if (localStorage.getItem('checkList')) {//如果是初次启动，checkList的值就为null
@@ -299,7 +314,7 @@ export default {
 .checkBox {
   display: flex;
   justify-content: center;
-  margin-top: 50px;
+  margin: 50px 50px
 }
 
 @media screen and (min-width: 100px) {
@@ -310,7 +325,8 @@ export default {
   }
 
   .dropmenu {
-    width: 180px;
+    padding: 1em 0;
+    width: 140px;
     font-size: 18px;
   }
 
@@ -328,7 +344,7 @@ export default {
   }
 
   .dropmenu {
-    width: 480px;
+    width: 420px;
     font-size: 18px;
   }
 
