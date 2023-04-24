@@ -140,8 +140,8 @@ export default {
     },
     //  百度翻译入口,query为用户输入的内容
     translate(queryContent) {
-      let appid = '20221214001496971'
-      let key = 'OAfmWzH_xc9OoYrEGQfy'
+      let appid = ''
+      let key = ''
       let salt = (new Date).getTime()
       let query = queryContent
       // 多个query可以用\n连接  如 query='apple\norange\nbanana\npear'
