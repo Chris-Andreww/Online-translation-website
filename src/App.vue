@@ -93,14 +93,18 @@
 import MD5 from 'js-md5'
 import $ from 'jquery'
 
+const regexCn = /[\u4e00-\u9fa5]/; // 匹配中文
+const regexEn = /[a-zA-z]/; // 匹配英文
+const regexJp = /[\u3040-\u30ff]/; // 匹配日文
+
 export default {
   data() {
     return {
       data: {
         textarea: '',
         result: '',
-        targetLan: 'en',
-        Language: 'EN',
+        targetLan: 'en',//翻译的语言
+        Language: 'EN',//选项框显示的语言
         loadingStat: false,//用来显示翻译按钮是否有加载动画
         checkList: [],//用来存放当前复选框的选择信息
         fontSize: 18
@@ -136,8 +140,8 @@ export default {
     },
     //  百度翻译入口,query为用户输入的内容
     translate(queryContent) {
-      let appid = '20221214001496971'
-      let key = 'OAfmWzH_xc9OoYrEGQfy'
+      let appid = '这里输入你的app id'
+      let key = '这里输入你的密钥'
       let salt = (new Date).getTime()
       let query = queryContent
       // 多个query可以用\n连接  如 query='apple\norange\nbanana\npear'
@@ -158,6 +162,7 @@ export default {
           sign: sign
         },
         success: (data) => {
+          console.log(data)
           this.data.loadingStat = false
           let arrLen = data.trans_result.length//获取传回来的数组长度
           for (let i = 0; i < arrLen; i++) {
@@ -175,8 +180,11 @@ export default {
         }
       });
     },
+    //做发送前的准备工作
     goTranslate() {
-      if (this.data.textarea.trim().length === 0) {
+      let inputValue = this.data.textarea.trim()
+      //检测输入内容是否为空
+      if (inputValue.length === 0) {
         this.$notify({
           title: '请输入内容',
           position: 'bottom-left',
@@ -186,15 +194,31 @@ export default {
         this.data.loadingStat = false
         return
       }
+
+      //正则表达式匹配判断用户输入的语言，默认输入英译中，中译英，日译中
+      if (inputValue.match(regexCn)) {
+        this.data.targetLan='en'
+        this.data.Language = '英文'
+      } else if (inputValue.match(regexEn)) {
+        this.data.targetLan='zh'
+        this.data.Language = '中文'
+      } else if (inputValue.match(regexJp)) {
+        this.data.targetLan='zh'
+        this.data.Language = '中文'
+      } else {//未识别的字符默认翻译为英文
+        this.data.targetLan='en'
+        this.data.Language = 'EN'
+      }
+
       if (this.data.checkList.some(val => {
         return val === 'A'//如果发现复选框A被选中，则保留翻译结果
       })) {
-        console.log('save result')
+        true
       } else {
         this.data.result = ''
       }
       this.data.loadingStat = true
-      this.translate(this.data.textarea)
+      this.translate(inputValue)
     },
     reset() {
       this.$confirm('重置将会删除本地保存的所有数据，包括配置信息！', '确定要重置吗？', {

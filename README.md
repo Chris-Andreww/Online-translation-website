@@ -1,3 +1,22 @@
-![IMG_5488(20230422-234828)](https://user-images.githubusercontent.com/102415870/233794560-e2b29e53-2d76-490a-b7f7-b6a35b876458.PNG)
-![IMG_5486(20230422-234734)](https://user-images.githubusercontent.com/102415870/233794562-9251a222-9c2c-434e-b307-5947c8d072e9.PNG)
-![IMG_5485(20230422-234627)](https://user-images.githubusercontent.com/102415870/233794565-f29f4865-19f9-4a63-a485-331a59212691.PNG)
+# 1.0.2更新·更新内容：自动检测输入语言（默认中译英、英译中、日译中）
+
+版本1.0.1更新 ·更新内容：支持自动翻译
+
+
+
+=================分割线======================
+
+<img src="https://user-images.githubusercontent.com/102415870/233794560-e2b29e53-2d76-490a-b7f7-b6a35b876458.PNG" alt="IMG_5488(20230422-234828)" style="zoom: 25%;" />
+
+=================分割线======================
+
+<img src="https://user-images.githubusercontent.com/102415870/233794562-9251a222-9c2c-434e-b307-5947c8d072e9.PNG" alt="IMG_5486(20230422-234734)" style="zoom:25%;" />
+
+
+
+=================分割线======================
+
+<img src="https://user-images.githubusercontent.com/102415870/233794565-f29f4865-19f9-4a63-a485-331a59212691.PNG" alt="IMG_5485(20230422-234627)" style="zoom:25%;" />
+
+
+
