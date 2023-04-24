@@ -120,7 +120,7 @@ export default {
         clearTimeout(this.timerT)
         this.timerT = setTimeout(() => {
           this.goTranslate()
-        }, 1500)
+        }, 1000)
       }
     },
     changeLanguage(lan) {
@@ -140,8 +140,8 @@ export default {
     },
     //  百度翻译入口,query为用户输入的内容
     translate(queryContent) {
-      let appid = '这里输入你的app id'
-      let key = '这里输入你的密钥'
+      let appid = '20221214001496971'
+      let key = 'OAfmWzH_xc9OoYrEGQfy'
       let salt = (new Date).getTime()
       let query = queryContent
       // 多个query可以用\n连接  如 query='apple\norange\nbanana\npear'
@@ -198,7 +198,7 @@ export default {
       //正则表达式匹配判断用户输入的语言，默认输入英译中，中译英，日译中
       if (inputValue.match(regexCn)) {
         this.data.targetLan='en'
-        this.data.Language = '英文'
+        this.data.Language = 'EN'
       } else if (inputValue.match(regexEn)) {
         this.data.targetLan='zh'
         this.data.Language = '中文'
