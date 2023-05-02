@@ -13,7 +13,7 @@
     <div class="mainbutton">
       <!--      下拉菜单选项-->
       <el-dropdown trigger="click" @command="changeLanguage">
-        <el-button class="dropmenu">
+        <el-button class="dropmenu" :disabled="data.dropmenuChecked">
           <span class="el-dropdown-link">
            翻译为：{{ data.Language }}
            <i class="el-icon-arrow-down el-icon--right"></i>
@@ -82,7 +82,7 @@
       <el-checkbox-group v-model="data.checkList">
         <el-checkbox label="A">保留翻译结果</el-checkbox>
         <el-checkbox label="B">保存当前配置</el-checkbox>
-        <el-checkbox label="C">是否开启自动翻译</el-checkbox>
+        <el-checkbox label="C">自动翻译&自动语言识别</el-checkbox>
       </el-checkbox-group>
     </div>
 
@@ -107,7 +107,8 @@ export default {
         Language: 'EN',//选项框显示的语言
         loadingStat: false,//用来显示翻译按钮是否有加载动画
         checkList: [],//用来存放当前复选框的选择信息
-        fontSize: 18
+        fontSize: 18,
+        dropmenuChecked: false,//用来调整翻译下拉选项是否显示/锁定
       }
     }
   },
@@ -116,7 +117,7 @@ export default {
     autoTrans() {
       if (this.data.checkList.some(val => val === 'C')) {//如果发现复选框C被选中才会自动翻译
         this.data.loadingStat = true
-        //设置防抖方法，让用户停止输入2秒后才自动翻译
+        //设置防抖方法，让用户停止输入1秒后才自动翻译
         clearTimeout(this.timerT)
         this.timerT = setTimeout(() => {
           this.goTranslate()
@@ -138,7 +139,7 @@ export default {
           this.data.Language = '日语'
       }
     },
-    //  百度翻译入口,query为用户输入的内容
+    //  百度翻译入口,query为用户输入的内容**************************************************************************
     translate(queryContent) {
       let appid = ''
       let key = ''
@@ -162,7 +163,6 @@ export default {
           sign: sign
         },
         success: (data) => {
-          console.log(data)
           this.data.loadingStat = false
           let arrLen = data.trans_result.length//获取传回来的数组长度
           for (let i = 0; i < arrLen; i++) {
@@ -195,24 +195,25 @@ export default {
         return
       }
 
-      //正则表达式匹配判断用户输入的语言，默认输入英译中，中译英，日译中
-      if (inputValue.match(regexCn)) {
-        this.data.targetLan='en'
-        this.data.Language = 'EN'
-      } else if (inputValue.match(regexEn)) {
-        this.data.targetLan='zh'
-        this.data.Language = '中文'
-      } else if (inputValue.match(regexJp)) {
-        this.data.targetLan='zh'
-        this.data.Language = '中文'
-      } else {//未识别的字符默认翻译为英文
-        this.data.targetLan='en'
-        this.data.Language = 'EN'
+      //开启自动翻译并识别语言后启用该功能
+      if (this.data.checkList.some(val => val === 'C')) {
+        //正则表达式匹配判断用户输入的语言，默认输入英译中，中译英，日译中
+        if (inputValue.match(regexCn)) {
+          this.data.targetLan = 'en'
+          this.data.Language = 'EN'
+        } else if (inputValue.match(regexEn)) {
+          this.data.targetLan = 'zh'
+          this.data.Language = '中文'
+        } else if (inputValue.match(regexJp)) {
+          this.data.targetLan = 'zh'
+          this.data.Language = '中文'
+        } else {//未识别的字符默认翻译为英文
+          this.data.targetLan = 'en'
+          this.data.Language = 'EN'
+        }
       }
 
-      if (this.data.checkList.some(val => {
-        return val === 'A'//如果发现复选框A被选中，则保留翻译结果
-      })) {
+      if (this.data.checkList.some(val => val === 'A')) {//如果发现复选框A被选中，则保留翻译结果
         true
       } else {
         this.data.result = ''
@@ -274,25 +275,30 @@ export default {
   watch: {
     data: {
       handler() {
-        //设置防抖方法，让用户停止输入2秒后才将数据保存在本地
-        clearTimeout(this.timer)
+        let BSelect = this.data.checkList.some(val => val === 'B')
+        let CSelect = this.data.checkList.some(val => val === 'C');
+
+        if (CSelect) {//如果发现复选框C被选中，则锁定翻译选项
+          this.data.dropmenuChecked = true
+        } else {
+          this.data.dropmenuChecked = false
+        }
+
+            //设置防抖方法，让用户停止输入0.5秒后才将数据保存在本地
+          clearTimeout(this.timer)
         this.timer = setTimeout(() => {
-          if (this.data.checkList.some(val => {
-            return val === 'B'//如果发现复选框B被选中，则保存当前配置信息
-          })) {
-            localStorage.setItem('inputVal', this.data.textarea)
-            localStorage.setItem('outputVal', this.data.result)
+          if (BSelect) {//如果发现复选框B被选中，则保存当前配置信息
             localStorage.setItem('targetLan', this.data.targetLan)
             localStorage.setItem('Language', this.data.Language)
             localStorage.setItem('checkList', this.data.checkList)
             localStorage.setItem('fontSize', this.data.fontSize)
+            localStorage.setItem('dropmenuChecked', this.data.dropmenuChecked)
           } else {
-            localStorage.removeItem('inputVal')
-            localStorage.removeItem('outputVal')
             localStorage.removeItem('targetLan')
             localStorage.removeItem('Language')
             localStorage.removeItem('checkList')
             localStorage.removeItem('fontSize', this.data.fontSize)
+            localStorage.removeItem('dropmenuChecked')
           }
         }, 500)
 
@@ -303,13 +309,17 @@ export default {
   },
   created() {
     if (localStorage.getItem('checkList')) {//如果是初次启动，checkList的值就为null
-      this.data.textarea = localStorage.getItem('inputVal')
-      this.data.result = localStorage.getItem('outputVal')
       this.data.targetLan = localStorage.getItem('targetLan')
       this.data.Language = localStorage.getItem('Language')
       let str = localStorage.getItem('checkList')
+
       this.data.checkList = str.split(',')//将从localstorage中获取的字符串转为数组
       this.data.fontSize = localStorage.getItem('fontSize')
+
+      //在使用LocalStorage存储布尔值等数据类型时，LocalStorage会将它们自动转换为字符串类型进行存储
+      //因此，在从LocalStorage中获取布尔值变量时，它返回的是一个字符串类型的变量。
+      //因此需要将存储在localstorage中的字符串变量转为布尔变量后才进行赋值
+      this.data.dropmenuChecked = Boolean(localStorage.getItem('dropmenuChecked'))
     }
   }
 }
