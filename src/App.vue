@@ -36,13 +36,13 @@
           :loading="data.loadingStat"
       >{{ this.data.loadingStat ? '翻译中' : '翻译' }}
       </el-button>
-      <!--      重置按钮-->
+      <!--      清空按钮-->
       <el-button
           class="btn2"
           style="margin: 20px 0;"
           type="danger"
-          @click="reset"
-      >重置
+          @click="clear"
+      >清空
       </el-button>
     </div>
 
@@ -221,30 +221,14 @@ export default {
       this.data.loadingStat = true
       this.translate(inputValue)
     },
-    reset() {
-      this.$confirm('重置将会删除本地保存的所有数据，包括配置信息！', '确定要重置吗？', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        center: true
-      }).then(() => {
-        this.data.textarea = '',
-            this.data.result = '',
-            this.data.checkList = [],
-            this.data.fontSize = 18,
-            this.data.Language = 'EN',
-            this.data.targetLan = 'en',
-            this.$message({
-              type: 'success',
-              message: '重置成功!',
-              duration: 1000
-            });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消',
-          duration: 1000
-        });
+    clear() {
+      this.data.textarea=''
+      this.data.result=''
+      this.$notify({
+        title: '清空内容成功',
+        position: 'bottom-left',
+        type: 'success',
+        duration: 2000
       })
     },
     copyRes() {
