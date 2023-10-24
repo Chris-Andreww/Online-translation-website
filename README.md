@@ -8,19 +8,19 @@
 
 
 
-=================分割线======================
-
-
+实机演示：
 
 =================分割线======================
 
-
-
-
+![image](https://github.com/Chris-Andreww/Online-translation-website/blob/master/image/1.png)
 
 =================分割线======================
 
+![image](https://github.com/Chris-Andreww/Online-translation-website/blob/master/image/2.png)
 
+=================分割线======================
+
+![image](https://github.com/Chris-Andreww/Online-translation-website/blob/master/image/3.png)
 
 =================分割线======================
 
@@ -29,3 +29,5 @@
 **1、源代码中并未提供对应的API，需要自己去百度翻译中获取自己的API，每个月免费5万字符：[百度翻译开放平台 (baidu.com)](https://fanyi-api.baidu.com/?fr=pcHeader)**
 
 **2、获取到API后，在src/utils/transAPI.js代码中的如下位置修改为自己的API即可**
+
+![image](https://github.com/Chris-Andreww/Online-translation-website/blob/master/image/4.png)
