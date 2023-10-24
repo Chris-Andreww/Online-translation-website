@@ -1,97 +1,60 @@
 <template>
   <div id="app">
-    <el-input
-        :autosize="{ minRows: 1, maxRows: 8}"
-        :style="{color: '#000',fontWeight: '600px',fontSize: this.data.fontSize+'px'}"
-        type="textarea"
-        :rows="8"
-        v-model="data.textarea"
-        @input="autoTrans"
-        placeholder="请输入需要翻译的内容">
-    </el-input>
+    <div class="main">
+      <div class="transpanel">
+        <el-input :autosize="{ minRows: 5, maxRows: 5 }" :style="{ color: '#000', fontSize: '18px', fontWeight: '600px' }"
+          type="textarea" v-model="data.textarea" @input="autoTrans" placeholder="翻译内容">
+        </el-input>
+        <el-input :autosize="{ minRows: 5, maxRows: 5 }" :style="{ color: '#000', fontSize: '18px', fontWeight: '600px' }"
+          type="textarea" v-model="data.result" placeholder="翻译结果">
+        </el-input>
+      </div>
+      <div class="moreFun">
+        <div class="mainbutton">
+          <!--下拉菜单选项-->
+          <el-dropdown trigger="click" @command="changeLanguage">
+            <el-button class="dropmenu" :disabled="data.dropmenuChecked">
+              <span class="el-dropdown-link">
+                翻译为：{{ data.Language }}
+                <i class="el-icon-arrow-down el-icon--right"></i>
+              </span>
+            </el-button>
+            <!--语言选择下拉菜单-->
+            <el-dropdown-menu>
+              <el-dropdown-item command="en">英文</el-dropdown-item>
+              <el-dropdown-item command="zh">中文</el-dropdown-item>
+              <el-dropdown-item command="jp">日语</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
 
-    <div class="mainbutton">
-      <!--      下拉菜单选项-->
-      <el-dropdown trigger="click" @command="changeLanguage">
-        <el-button class="dropmenu" :disabled="data.dropmenuChecked">
-          <span class="el-dropdown-link">
-           翻译为：{{ data.Language }}
-           <i class="el-icon-arrow-down el-icon--right"></i>
-          </span>
-        </el-button>
-        <!--        语言选择下拉菜单-->
-        <el-dropdown-menu>
-          <el-dropdown-item command="en">英文</el-dropdown-item>
-          <el-dropdown-item command="zh">中文</el-dropdown-item>
-          <el-dropdown-item command="jp">日语</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-
-      <!--      翻译按钮-->
-      <el-button
-          class="btn1"
-          style="margin: 20px 0;"
-          type="primary"
-          @click="goTranslate"
-          :loading="data.loadingStat"
-      >{{ this.data.loadingStat ? '翻译中' : '翻译' }}
-      </el-button>
-      <!--      清空按钮-->
-      <el-button
-          class="btn2"
-          style="margin: 20px 0;"
-          type="danger"
-          @click="clear"
-      >清空
-      </el-button>
-    </div>
-
-    <div class="splitLine">
-      翻译结果 ↓
-    </div>
-
-    <el-input
-        :autosize="{ minRows: 1, maxRows: 8}"
-        :style="{color: '#000',fontWeight: '600px',fontSize: this.data.fontSize+'px'}"
-        type="textarea"
-        :rows="8"
-        v-model="data.result"
-        placeholder="翻译结果">
-    </el-input>
-    <div class="copyBtn">
-
-      <!--复制按钮-->
-      <el-button
-          type="success"
-          round
-          size="medium"
-          icon="el-icon-document-copy"
-          @click="copyRes"
-      >复制
-      </el-button>
-      <div class="changeFontSize"><!--字体大小调整按钮-->
-        <el-button-group>
-          <el-button type="primary" @click="deFontSize">A-</el-button>
-          <el-button type="primary" @click="addFontSize">A+</el-button>
-        </el-button-group>
+          <!--翻译按钮-->
+          <el-button class="btn1" style="margin: 20px 0;" type="primary" @click="goTranslate"
+            :loading="data.loadingStat">{{
+              this.data.loadingStat ? '翻译中' : '翻译' }}
+          </el-button>
+          <!--清空按钮-->
+          <el-button class="btn2" style="margin: 20px 0;" type="danger" @click="clear">清空
+          </el-button>
+        </div>
+        <div class="otherOpe">
+          <el-checkbox-group class="checkBox" v-model="data.checkList">
+            <el-checkbox label="saveres">保留翻译历史</el-checkbox>
+            <el-checkbox label="autotrans">自动翻译</el-checkbox>
+            <el-button class="clearHis" @click="clearHis">清空翻译记录</el-button>
+          </el-checkbox-group>
+          <div class="history">
+            <div class="item" @click="fillHisInfo(item)" v-for="(item, index) in data.transHistory" :key="index">
+              {{ item }}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-
-    <div class="checkBox">
-      <el-checkbox-group v-model="data.checkList">
-        <el-checkbox label="A">保留翻译结果</el-checkbox>
-        <el-checkbox label="B">保存当前配置</el-checkbox>
-        <el-checkbox label="C">自动翻译&自动语言识别</el-checkbox>
-      </el-checkbox-group>
-    </div>
-
   </div>
 </template>
 
 <script>
-import MD5 from 'js-md5'
-import $ from 'jquery'
+import { translateFun } from '@/utils/transAPI.js'
 
 const regexCn = /[\u4e00-\u9fa5]/; // 匹配中文
 const regexEn = /[a-zA-z]/; // 匹配英文
@@ -107,21 +70,20 @@ export default {
         Language: 'EN',//选项框显示的语言
         loadingStat: false,//用来显示翻译按钮是否有加载动画
         checkList: [],//用来存放当前复选框的选择信息
-        fontSize: 18,
         dropmenuChecked: false,//用来调整翻译下拉选项是否显示/锁定
+        transHistory: []
       }
     }
   },
   methods: {
     //自动翻译功能
     autoTrans() {
-      if (this.data.checkList.some(val => val === 'C')) {//如果发现复选框C被选中才会自动翻译
-        this.data.loadingStat = true
+      if (this.data.checkList.some(val => val === 'autotrans')) {//如果发现复选框C被选中才会自动翻译
         //设置防抖方法，让用户停止输入1秒后才自动翻译
         clearTimeout(this.timerT)
         this.timerT = setTimeout(() => {
           this.goTranslate()
-        }, 1000)
+        }, 500)
       }
     },
     changeLanguage(lan) {
@@ -139,64 +101,18 @@ export default {
           this.data.Language = '日语'
       }
     },
-    //  百度翻译入口,query为用户输入的内容**************************************************************************
-    translate(queryContent) {
-      let appid = ''
-      let key = ''
-      let salt = (new Date).getTime()
-      let query = queryContent
-      // 多个query可以用\n连接  如 query='apple\norange\nbanana\npear'
-      let from = 'auto'//源语言语种不确定时可设置为 auto，让api自动检测
-      let to = this.data.targetLan
-      let str1 = appid + query + salt + key
-      let sign = MD5(str1)
-      $.ajax({
-        url: 'https://fanyi-api.baidu.com/api/trans/vip/translate',
-        type: 'get',
-        dataType: 'jsonp',//用来实现跨域请求
-        data: {
-          q: query,
-          from: from,
-          to: to,
-          appid: appid,
-          salt: salt,
-          sign: sign
-        },
-        success: (data) => {
-          this.data.loadingStat = false
-          let arrLen = data.trans_result.length//获取传回来的数组长度
-          for (let i = 0; i < arrLen; i++) {
-            this.data.result += data.trans_result[i].dst
-            if (i != arrLen - 1) {
-              this.data.result += '\n'
-            }
-          }
-          this.$notify({
-            title: '翻译成功',
-            position: 'bottom-left',
-            type: 'success',
-            duration: 2000
-          })
-        }
-      });
-    },
     //做发送前的准备工作
     goTranslate() {
       let inputValue = this.data.textarea.trim()
       //检测输入内容是否为空
       if (inputValue.length === 0) {
-        this.$notify({
-          title: '请输入内容',
-          position: 'bottom-left',
-          type: 'error',
-          duration: 2000
-        })
+        this.notifyFun('请输入内容', 'error')
         this.data.loadingStat = false
         return
       }
 
       //开启自动翻译并识别语言后启用该功能
-      if (this.data.checkList.some(val => val === 'C')) {
+      if (this.data.checkList.some(val => val === 'autotrans')) {
         //正则表达式匹配判断用户输入的语言，默认输入英译中，中译英，日译中
         if (inputValue.match(regexCn)) {
           this.data.targetLan = 'en'
@@ -213,165 +129,177 @@ export default {
         }
       }
 
-      if (this.data.checkList.some(val => val === 'A')) {//如果发现复选框A被选中，则保留翻译结果
-        true
-      } else {
-        this.data.result = ''
+      if (this.data.checkList.some(val => val === 'saveres')) {//如果发现复选框A被选中，则保留翻译结果
+        let hisarr = this.data.transHistory   //将this.data.transHistory的引用赋值给了hisarr
+        if (hisarr.length >= 6) {
+          hisarr.splice(hisarr.length - 1, 1)
+        }
+        hisarr.unshift(this.data.textarea)
       }
       this.data.loadingStat = true
-      this.translate(inputValue)
+
+      // 百度翻译入口
+      translateFun(inputValue, this.data.targetLan).then(res => {
+        this.data.loadingStat = false
+        this.data.result = res
+        this.notifyFun('翻译成功', 'success')
+      }).catch(() => {
+        this.notifyFun('翻译API调用频率过高，请稍后重试！', 'error')
+        this.data.loadingStat = false
+      })
     },
     clear() {
-      this.data.textarea=''
-      this.data.result=''
+      this.data.textarea = ''
+      this.data.result = ''
+      this.notifyFun('清空内容成功', 'success')
+    },
+    notifyFun(content, type) {
       this.$notify({
-        title: '清空内容成功',
+        title: content,
         position: 'bottom-left',
-        type: 'success',
+        type: type,
         duration: 2000
       })
     },
-    copyRes() {
-      this.$copyText(this.data.result).then(() => {
-        this.$notify({
-          title: '复制成功',
-          position: 'bottom-left',
-          type: 'success',
-          duration: 2000
-        })
-      }, () => {
-        this.$notify({
-          title: '复制失败',
-          message: '翻译结果为空，请输入内容',
-          position: 'bottom-left',
-          type: 'error',
-          duration: 2000
-        })
-      })
+    //检查是否启用了自动翻译，启动就禁止用户选择语言
+    checkIsAuto() {
+      let Select = this.data.checkList.some(val => val === 'autotrans');
+      if (Select) {//如果发现自动翻译被选中，则锁定翻译选项
+        this.data.dropmenuChecked = true
+      } else {
+        this.data.dropmenuChecked = false
+      }
     },
-    addFontSize() {
-      this.data.fontSize++
+    //清除翻译历史
+    clearHis() {
+      this.data.transHistory = []
+      this.notifyFun('清空成功', 'success')
     },
-    deFontSize() {
-      this.data.fontSize--
+    //将历史搜索信息填入输入框并翻译
+    fillHisInfo(info) {
+      this.data.textarea = info
+      this.goTranslate()
     }
   },
   watch: {
     data: {
       handler() {
-        let BSelect = this.data.checkList.some(val => val === 'B')
-        let CSelect = this.data.checkList.some(val => val === 'C');
-
-        if (CSelect) {//如果发现复选框C被选中，则锁定翻译选项
-          this.data.dropmenuChecked = true
-        } else {
-          this.data.dropmenuChecked = false
-        }
-
-            //设置防抖方法，让用户停止输入0.5秒后才将数据保存在本地
-          clearTimeout(this.timer)
+        this.checkIsAuto()
+        //设置防抖方法，让用户停止输入0.5秒后才将数据保存在本地
+        clearTimeout(this.timer)
         this.timer = setTimeout(() => {
-          if (BSelect) {//如果发现复选框B被选中，则保存当前配置信息
-            localStorage.setItem('targetLan', this.data.targetLan)
-            localStorage.setItem('Language', this.data.Language)
-            localStorage.setItem('checkList', this.data.checkList)
-            localStorage.setItem('fontSize', this.data.fontSize)
-            localStorage.setItem('dropmenuChecked', this.data.dropmenuChecked)
-          } else {
-            localStorage.removeItem('targetLan')
-            localStorage.removeItem('Language')
-            localStorage.removeItem('checkList')
-            localStorage.removeItem('fontSize', this.data.fontSize)
-            localStorage.removeItem('dropmenuChecked')
-          }
+          let { Language, targetLan, checkList, transHistory } = this.data
+          localStorage.setItem('transConfig', JSON.stringify({ Language, targetLan, checkList, transHistory }))
         }, 500)
-
       },
       deep: true
     }
 
   },
   created() {
-    if (localStorage.getItem('checkList')) {//如果是初次启动，checkList的值就为null
-      this.data.targetLan = localStorage.getItem('targetLan')
-      this.data.Language = localStorage.getItem('Language')
-      let str = localStorage.getItem('checkList')
-
-      this.data.checkList = str.split(',')//将从localstorage中获取的字符串转为数组
-      this.data.fontSize = localStorage.getItem('fontSize')
-
-      //在使用LocalStorage存储布尔值等数据类型时，LocalStorage会将它们自动转换为字符串类型进行存储
-      //因此，在从LocalStorage中获取布尔值变量时，它返回的是一个字符串类型的变量。
-      //因此需要将存储在localstorage中的字符串变量转为布尔变量后才进行赋值
-      this.data.dropmenuChecked = Boolean(localStorage.getItem('dropmenuChecked'))
+    if (localStorage.getItem('transConfig')) {//如果是初次启动，checkList的值就为null
+      let { Language, targetLan, checkList, transHistory } = JSON.parse(localStorage.getItem('transConfig'))
+      this.data.Language = Language
+      this.data.targetLan = targetLan
+      this.data.checkList = checkList
+      this.data.transHistory = transHistory
     }
+    this.checkIsAuto()
   }
 }
 </script>
 
-<style>
-.copyBtn {
-  display: flex;
-  margin: 10px 30px;
-  justify-content: center;
-}
-
-.changeFontSize {
-  transform: translateX(60%);
-}
-
-.splitLine {
+<style lang="scss">
+.main {
+  margin-top: 10vh;
+  padding: 20px;
+  box-sizing: border-box;
   width: 100%;
-  margin-top: 4em;
-  height: 2em;
-  text-align: center;
-  line-height: 2em;
-  background-color: darkgrey;
+  height: 100%;
+  display: grid;
+  justify-items: center;
+
+  .transpanel {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 700px));
+  }
+
+  .moreFun {
+    width: 100%;
+    max-width: 700px;
+
+    .mainbutton {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      align-items: center;
+      gap: 20px;
+
+      .dropmenu {
+        padding: 1em 0;
+        width: 100%;
+        font-size: 18px;
+      }
+
+      .btn1,
+      .btn2 {
+        font-size: 18px;
+      }
+    }
+
+    .otherOpe {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+
+      .checkBox {
+        margin-top: 20px;
+        display: grid;
+        gap: 20px;
+
+        .clearHis {
+          align-items: center;
+          background: #e7eaf5;
+          border-radius: 10px;
+          color: #666;
+          cursor: pointer;
+          display: flex;
+          font-family: PingFang SC;
+          font-size: 12px;
+          font-style: normal;
+          font-weight: 400;
+          justify-content: center;
+          padding: 5px 0;
+          width: 100px;
+        }
+      }
+
+      .history {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(60px, 80px));
+        gap: 10px;
+
+        .item {
+          background: hsla(0, 0%, 100%, .5);
+          border-radius: 10px;
+          box-sizing: border-box;
+          color: #999;
+          cursor: pointer;
+          font-family: PingFang SC;
+          font-size: 12px;
+          font-style: normal;
+          font-weight: 400;
+          height: 28px;
+          line-height: 28px;
+          overflow: hidden;
+          padding: 0 10px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+    }
+
+
+  }
+
 }
-
-.checkBox {
-  display: flex;
-  justify-content: center;
-  margin: 50px 50px
-}
-
-@media screen and (min-width: 100px) {
-  .mainbutton {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-  }
-
-  .dropmenu {
-    padding: 1em 0;
-    width: 140px;
-    font-size: 18px;
-  }
-
-  .btn1,
-  .btn2 {
-    font-size: 18px;
-  }
-}
-
-@media screen and (min-width: 800px) {
-  .mainbutton {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-  }
-
-  .dropmenu {
-    width: 420px;
-    font-size: 18px;
-  }
-
-  .btn1,
-  .btn2 {
-    width: 500px;
-    height: 100px;
-    font-size: 18px;
-  }
-}
-
 </style>

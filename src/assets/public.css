@@ -1,0 +1,11 @@
+/* 将所有标签的内外边距清零 */
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    /* CSS3的属性，用来抗锯齿，让文字显示的更加清晰 */
+    -webkit-font-smoothing: antialiased;
+    background-color: #f2f4fb;
+}
