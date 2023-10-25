@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <div class="main">
+    <div class="main" @click="focusToIpt">
       <div class="transpanel">
         <el-input :autosize="{ minRows: 5, maxRows: 5 }" :style="{ color: '#000', fontSize: '18px', fontWeight: '600px' }"
-          type="textarea" v-model="data.textarea" @input="autoTrans" placeholder="翻译内容">
+          type="textarea" v-model="data.textarea" @input="autoTrans" placeholder="翻译内容" ref="input">
         </el-input>
         <el-input :autosize="{ minRows: 5, maxRows: 5 }" :style="{ color: '#000', fontSize: '18px', fontWeight: '600px' }"
           type="textarea" v-model="data.result" placeholder="翻译结果">
@@ -39,7 +39,7 @@
         <div class="otherOpe">
           <el-checkbox-group class="checkBox" v-model="data.checkList">
             <el-checkbox label="saveres">保留翻译历史</el-checkbox>
-            <el-checkbox label="autotrans">自动翻译</el-checkbox>
+            <el-checkbox label="autotrans" class="autotrans">自动翻译</el-checkbox>
             <el-button class="clearHis" @click="clearHis">清空翻译记录</el-button>
           </el-checkbox-group>
           <div class="history">
@@ -179,6 +179,9 @@ export default {
     fillHisInfo(info) {
       this.data.textarea = info
       this.goTranslate()
+    },
+    focusToIpt() {
+      this.$refs.input.focus()  //自动聚焦输入框
     }
   },
   watch: {
@@ -205,6 +208,9 @@ export default {
       this.data.transHistory = transHistory
     }
     this.checkIsAuto()
+  },
+  mounted() {
+    this.focusToIpt()
   }
 }
 </script>
@@ -253,9 +259,16 @@ export default {
       .checkBox {
         margin-top: 20px;
         display: grid;
+        grid-template-columns: repeat(3,1fr);
+        grid-template-rows: repeat(3,1fr);
         gap: 20px;
 
+        .autotrans{
+          grid-area: 2/1/2/1;
+        }
+
         .clearHis {
+          grid-area: 3/1/4/2;
           align-items: center;
           background: #e7eaf5;
           border-radius: 10px;

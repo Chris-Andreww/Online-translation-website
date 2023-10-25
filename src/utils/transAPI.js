@@ -3,8 +3,8 @@ import $ from 'jquery'
 
 export const translateFun = (queryContent, targetLan) => {
     return new Promise((resolve, reject) => {
-        let appid = 'xxxxxxx' //添加自己的app id
-        let key = 'xxxxxxx'    //添加自己的密钥
+        let appid = '20221214001496971' //添加自己的app id
+        let key = 'OAfmWzH_xc9OoYrEGQfy'    //添加自己的密钥
         let salt = new Date().getTime()
         // 多个query可以用\n连接  如 query='apple\norange\nbanana\npear'
         let from = 'auto'//源语言语种不确定时可设置为 auto，让api自动检测
